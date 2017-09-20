@@ -1,12 +1,13 @@
 @font-face {
     font-family: 'digital-7';
-    src:  url('fonts/digital-7.ttf') format('woff2')
+    src: url('fonts/digital-7.ttf') format('woff2')
 }
 
 body{
     color:whitesmoke;
     font-family: Arial;
     display:flex;
+    background-color: darkslateblue;
 }
 #calculator{
     width: 50vw;
@@ -19,7 +20,7 @@ body{
     background-color: #388385;
     height: 20%;
     width:90%;
-    margin: 5% auto 5% auto;
+    margin: 50px auto 50px auto;
     border-radius: 15px;
     font-size: 8em;
     position:relative;
@@ -31,9 +32,6 @@ body{
     font-family: digital-7, Arial;
     margin-right: 15px;
     color:#1c242b;
-
-
-
 }
 #buttonContainer{
     height:75%;
@@ -41,7 +39,7 @@ body{
 }
 .row{
     display:flex;
-    height: 16%;
+    height: 15%;
     width:90%;
     margin: 1% auto 1% auto;
 }
@@ -57,7 +55,7 @@ body{
 .button:active {
     transform: translateY(2px);
 }
-.button>p{
+#buttonContainer,.button>p{
     margin:auto;
     -webkit-user-select: none; /* Chrome/Safari */
     -moz-user-select: none; /* Firefox */
@@ -74,13 +72,13 @@ body{
 .numberButton{
     background-color: #0a2b1d;
 }
-.operatorButton{
+.operatorButton, #op_equal{
     background-color: lightgrey;
     color:#0a2b1d;
 }
 .operatorButton#op_multiply{
     font-size: 6vmin;
 }
-#op_equals{
+#op_equal{
     width:48%;
 }
