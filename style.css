@@ -1,29 +1,45 @@
+@font-face {
+    font-family: 'digital-7';
+    src: url('fonts/digital-7.ttf') format('woff2')
+}
+
 body{
     color:whitesmoke;
     font-family: Arial;
     display:flex;
+    background-color: darkslateblue;
 }
 #calculator{
-    width: 30vw;
-    height:60vh;
+    width: 50vw;
+    height:90vh;
     background-color:black;
     margin:auto;
     border-radius: 15px;
 }
 #display{
-    background-color: #1b6d85;
+    background-color: #388385;
     height: 20%;
     width:90%;
-    margin: 5% auto 5% auto;
+    margin: 50px auto 50px auto;
     border-radius: 15px;
+    font-size: 8em;
+    position:relative;
+    display:flex;
+    justify-content:flex-end;
+    align-items: center;
+}
+#display>p{
+    font-family: digital-7, Arial;
+    margin-right: 15px;
+    color:#1c242b;
 }
 #buttonContainer{
-    height:50%;
+    height:75%;
     width:100%;
 }
 .row{
     display:flex;
-    height: 25%;
+    height: 15%;
     width:90%;
     margin: 1% auto 1% auto;
 }
@@ -31,7 +47,7 @@ body{
     width: 23%;
     height:90%;
     margin:auto;
-    font-size: 4vmin;
+    font-size: 8vmin;
     display:flex;
     cursor:pointer;
     border-radius: 15px;
@@ -39,29 +55,30 @@ body{
 .button:active {
     transform: translateY(2px);
 }
-.button>p{
+#buttonContainer,.button>p{
     margin:auto;
+    -webkit-user-select: none; /* Chrome/Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none;
+}
+.button:hover{
+    color:dodgerblue;
 }
 .clearButton{
     width: 35%;
-    background-color: #985f0d;
+    background-color:#3a0303;
 }
-.clearButton:hover{
-    color:#0a2b1d;
-}
+
 .numberButton{
     background-color: #0a2b1d;
 }
-.numberButton:hover{
-    color:#985f0d;
-}
-.operatorButton{
+.operatorButton, #op_equal{
     background-color: lightgrey;
     color:#0a2b1d;
 }
-.operatorButton:hover{
-    color:#985f0d;
+.operatorButton#op_multiply{
+    font-size: 6vmin;
 }
-#op_equals{
+#op_equal{
     width:48%;
 }
