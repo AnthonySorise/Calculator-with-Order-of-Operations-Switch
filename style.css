@@ -43,6 +43,11 @@ body{
     width:90%;
     margin: 1% auto 1% auto;
 }
+
+.row#orderOfOperationRow{
+    height:7%;
+}
+
 .button{
     width: 23%;
     height:90%;
@@ -52,6 +57,24 @@ body{
     cursor:pointer;
     border-radius: 15px;
 }
+
+.button#orderOfOperationSwitch{
+    background-color: #00f400;
+    height: 45%;
+    width: 17.5%;
+    margin-left: 1%;
+}
+
+#orderOfOperationModeText{
+    width:82.5%;
+    display:flex;
+    align-items: center;
+}
+
+#orderOfOperationModeText>p{
+    margin-left: 10px;
+}
+
 .button:active {
     transform: translateY(2px);
 }

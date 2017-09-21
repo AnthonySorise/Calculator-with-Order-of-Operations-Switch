@@ -6,7 +6,7 @@ var calcInput = [];
 var numInputInitiated = false;
 var total = 0;
 var lastButtonPressedWasEqual = false;
-var lastInputHasDecimal = false;
+var orderOfOperationMode = true;
 
 function applyClickHandlers(){
     $(".numberButton").on("click", handleNumber);
@@ -14,6 +14,7 @@ function applyClickHandlers(){
     $("#op_equal").on("click", handleEqual);
     $("#clear_ce").on("click", handleCE);
     $("#clear_c").on("click", handleC);
+    $("#orderOfOperationSwitch").on("click", handleOrderOfOperationSwitch);
 }
 
 function handleNumber() {
@@ -46,7 +47,7 @@ function handleOperator(){
     var operator = $(this).find("p").text().toString();
     if(calcInput.length !== 0){
         var lastIndex = calcInput.length - 1;
-        if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //three equals doesn't work
+        if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //implement negative number
             //repeat operator
             calcInput[lastIndex] = operator;
         }
@@ -98,7 +99,6 @@ function calculateEquation(){
     if(calcInput.length > 2) {
         if(lastButtonPressedWasEqual === true){
             //check last input to determine what to do
-
         }
         //clone calcInput (don't want to change it if implementing order of operations functionality later)
         var equationToSolve = [];
@@ -110,25 +110,35 @@ function calculateEquation(){
         if(lastValueInEquationToSolve === "+" || lastValueInEquationToSolve === "-" || lastValueInEquationToSolve === "x" || lastValueInEquationToSolve === "÷" ){
             equationToSolve.pop();
         }
-        while(equationToSolve.indexOf("x") !== -1 || equationToSolve.indexOf("÷") !== -1) {
-            for (var i = 0; i < equationToSolve.length; i++) {
-                // var didMath = false;
-                if (equationToSolve[i] === "x" || equationToSolve[i] === "÷") {  //TO DO implement order of operation switch
-                    calculatePair(i, equationToSolve);
-                    i=i-1; //compensates for calculatePair() - which removes from array.
+        if(orderOfOperationMode) {
+            while (equationToSolve.indexOf("x") !== -1 || equationToSolve.indexOf("÷") !== -1) {
+                for (var i = 0; i < equationToSolve.length; i++) {
+                    if (equationToSolve[i] === "x" || equationToSolve[i] === "÷") {
+                        calculatePair(i, equationToSolve);
+                        i = i - 1; //compensates for calculatePair() - which removes from array.
+                    }
                 }
+                console.log("Solve: ", equationToSolve)
             }
-            console.log("Solve: ", equationToSolve)
+            while (equationToSolve.indexOf("+") !== -1 || equationToSolve.indexOf("-") !== -1) {
+                for (var i = 0; i < equationToSolve.length; i++) {
+                    if (equationToSolve[i] === "+" || equationToSolve[i] === "-") {
+                        calculatePair(i, equationToSolve);
+                        i = i - 1;  //compensates for calculatePair() - which removes from array.
+                    }
+                }
+                console.log("Solve: ", equationToSolve)
+            }
         }
-        while(equationToSolve.indexOf("+") !== -1 || equationToSolve.indexOf("-") !==-1) {
-            for (var i = 0; i < equationToSolve.length; i++) {
-                // var didMath = false;
-                if (equationToSolve[i] === "+" || equationToSolve[i] === "-") {
-                    calculatePair(i, equationToSolve);
-                    i=i-1;  //compensates for calculatePair() - which removes from array.
+        else{
+            while (equationToSolve.length > 1){
+                for (var i = 0; i < equationToSolve.length; i++) {
+                    if (equationToSolve[i] === "x" || equationToSolve[i] === "÷" || equationToSolve[i] === "+" || equationToSolve[i] === "-") {
+                        calculatePair(i, equationToSolve);
+                        i = i - 1; //compensates for calculatePair() - which removes from array.
+                    }
                 }
             }
-            console.log("Solve: ", equationToSolve)
         }
     }
 }
@@ -146,17 +156,16 @@ function handleEqual(){
 }
 
 //pressing equal more than once
-function operationRepeat(){     //NEEDS WORK!  REPEAT AFTER ROLLOVER IS BROKEN!
+function operationRepeat(){
     var secondToLastInput = calcInput[calcInput.length-2];
     var lastInput = calcInput[calcInput.length-1];
-    console.log("REPEATING, ADDING " + secondToLastInput + " " + lastInput);
+    console.log("Operation Repeat " + secondToLastInput + " " + lastInput);
     console.log(calcInput);
     calcInput.push(secondToLastInput);
     calcInput.push(lastInput);
-
 }
 
-function operationRollover(){   //NEEDS WORK!  REPEAT AFTER ROLLOVER IS BROKEN!
+function operationRollover(){
     console.log("ROLLOVER - PUSHING " + total);
     console.log(calcInput);
     calcInput.push(total.toString());
@@ -164,6 +173,15 @@ function operationRollover(){   //NEEDS WORK!  REPEAT AFTER ROLLOVER IS BROKEN!
 //pressing equal more than once
 
 function handleCE(){
+    if(lastButtonPressedWasEqual === true){
+        var lastOperator = calcInput[calcInput.length-2];
+        var lastNumber = calcInput[calcInput.length-1];
+        handleC();
+        calcInput[0] = 0;
+        calcInput[1] = lastOperator;
+        calcInput[2] = lastNumber;
+        return
+    }
     lastButtonPressedWasEqual = false;
     calcInput.pop();
     calcInput.push("");
@@ -175,4 +193,18 @@ function handleC(){
     numInputInitiated = false;
     var total = 0;
     $("#display").find("p").text(total);
+}
+
+function handleOrderOfOperationSwitch(){
+    if(orderOfOperationMode === true){
+        orderOfOperationMode = false;
+        $("#orderOfOperationSwitch").css("background-color", "#cd0a0a")
+        console.log("Order of Operation OFF")
+    }
+    else{
+        orderOfOperationMode = true;
+        $("#orderOfOperationSwitch").css("background-color", "#00f400")
+        console.log("Order of Operation ON")
+    }
+    lastButtonPressedWasEqual = false;
 }
