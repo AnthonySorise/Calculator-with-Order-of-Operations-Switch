@@ -8,8 +8,14 @@ var total = 0;
 var lastButtonPressedWasEqual = false;
 var orderOfOperationMode = true;
 
+//TO DO
+//when starting with operator, first number is 0
+//display error always when equation divides by zero (sometimes NAN)
+    //create display function that checks for NAN
+
 function applyClickHandlers(){
     $(".numberButton").on("click", handleNumber);
+    $("#negativeButton").on("click", handleNegative);
     $(".operatorButton").on("click", handleOperator);
     $("#op_equal").on("click", handleEqual);
     $("#clear_ce").on("click", handleCE);
@@ -42,10 +48,21 @@ function handleNumber() {
 
 }
 
+function handleNegative(){
+    if(calcInput.length === 0 || calcInput[calcInput.length-1] === "+" || calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "x" || calcInput[calcInput.length-1] === "÷") {
+        if (numInputInitiated === false) {
+        numInputInitiated = true;
+        // negativePressed = true;
+        calcInput.push("-")
+        console.log(calcInput)
+        }
+    }
+}
+
 function handleOperator(){
     lastButtonPressedWasEqual = false;
     var operator = $(this).find("p").text().toString();
-    if(calcInput.length !== 0){
+    if(calcInput.length !== 0){ //add else that puts zero in first place of equation
         var lastIndex = calcInput.length - 1;
         if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //implement negative number
             //repeat operator
@@ -76,7 +93,7 @@ function calculatePair(operatorIndex, inputArray){
             total = parseFloat(firstNumber) * parseFloat(secondNumber);
             break;
         case "÷":
-            if(parseFloat(secondNumber) == 0){
+            if(parseFloat(secondNumber) === 0){
                 total = "ERROR";
             }
             else{
@@ -92,15 +109,13 @@ function calculatePair(operatorIndex, inputArray){
     inputArray.splice(operatorIndex-1, 3, total);
 
     $("#display").find("p").text(total);
-    return total;   //unused return
 }
 
 function calculateEquation(){
     if(calcInput.length > 2) {
+        //check last input to determine what to do
         if(lastButtonPressedWasEqual === true){
-            //check last input to determine what to do
         }
-        //clone calcInput (don't want to change it if implementing order of operations functionality later)
         var equationToSolve = [];
         for (var i = 0; i < calcInput.length; i++) {
             equationToSolve.push(calcInput[i])
@@ -198,12 +213,12 @@ function handleC(){
 function handleOrderOfOperationSwitch(){
     if(orderOfOperationMode === true){
         orderOfOperationMode = false;
-        $("#orderOfOperationSwitch").css("background-color", "#cd0a0a")
+        $("#orderOfOperationSwitch").css("background-color", "#cd0a0a");
         console.log("Order of Operation OFF")
     }
     else{
         orderOfOperationMode = true;
-        $("#orderOfOperationSwitch").css("background-color", "#00f400")
+        $("#orderOfOperationSwitch").css("background-color", "#00f400");
         console.log("Order of Operation ON")
     }
     lastButtonPressedWasEqual = false;
