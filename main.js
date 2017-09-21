@@ -8,11 +8,6 @@ var total = 0;
 var lastButtonPressedWasEqual = false;
 var orderOfOperationMode = true;
 
-//TO DO
-//when starting with operator, first number is 0
-//display error always when equation divides by zero (sometimes NAN)
-    //create display function that checks for NAN
-
 function applyClickHandlers(){
     $(".numberButton").on("click", handleNumber);
     $("#negativeButton").on("click", handleNegative);
@@ -43,7 +38,7 @@ function handleNumber() {
     else{
         calcInput[calcInput.length - 1] += input;
     }
-    $("#display").find("p").text(calcInput[calcInput.length - 1]);
+    display(calcInput[calcInput.length - 1]);
     console.log("Input: ", calcInput);
 
 }
@@ -62,20 +57,22 @@ function handleNegative(){
 function handleOperator(){
     lastButtonPressedWasEqual = false;
     var operator = $(this).find("p").text().toString();
-    if(calcInput.length !== 0){ //add else that puts zero in first place of equation
-        var lastIndex = calcInput.length - 1;
-        if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //implement negative number
-            //repeat operator
-            calcInput[lastIndex] = operator;
-        }
-        else{
-            calcInput.push(operator);
-        }
-        numInputInitiated = false;
-        calculateEquation();
-        console.log("Input: ", calcInput);
-
+    if(calcInput.length === 0) { //add else that puts zero in first place of equation
+        calcInput[0] = 0;
     }
+    var lastIndex = calcInput.length - 1;
+    if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //implement negative number
+        //repeat operator
+        calcInput[lastIndex] = operator;
+    }
+    else{
+        calcInput.push(operator);
+    }
+    numInputInitiated = false;
+    calculateEquation();
+    console.log("Input: ", calcInput);
+
+
 
 }
 
@@ -108,7 +105,7 @@ function calculatePair(operatorIndex, inputArray){
     //remove numbers and operator - replace with total
     inputArray.splice(operatorIndex-1, 3, total);
 
-    $("#display").find("p").text(total);
+    display(total);
 }
 
 function calculateEquation(){
@@ -200,14 +197,15 @@ function handleCE(){
     lastButtonPressedWasEqual = false;
     calcInput.pop();
     calcInput.push("");
-    $("#display").find("p").text(0);
+    display(0);
 }
 function handleC(){
     lastButtonPressedWasEqual = false;
     calcInput = [];
     numInputInitiated = false;
     var total = 0;
-    $("#display").find("p").text(total);
+    console.log(total);
+    display(total);
 }
 
 function handleOrderOfOperationSwitch(){
@@ -222,4 +220,10 @@ function handleOrderOfOperationSwitch(){
         console.log("Order of Operation ON")
     }
     lastButtonPressedWasEqual = false;
+}
+function display(toDisplay){
+    if(isNaN(toDisplay) === true){
+        toDisplay = "ERROR";
+    }
+    $("#display").find("p").text(toDisplay)
 }
