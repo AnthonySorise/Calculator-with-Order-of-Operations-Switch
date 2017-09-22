@@ -2,18 +2,28 @@ $(document).ready(initializeApp);
 function initializeApp(){
     applyClickHandlers();
 }
+
 var calcInput = [];
 var numInputInitiated = false;
 var total = 0;
 var lastButtonPressedWasEqual = false;
-var lastInputHasDecimal = false;
+var orderOfOperationMode = true;
+
+function display(toDisplay){
+    if(isNaN(toDisplay) === true){
+        toDisplay = "ERROR";
+    }
+    $("#display").find("p").text(toDisplay)
+}
 
 function applyClickHandlers(){
     $(".numberButton").on("click", handleNumber);
+    $("#negativeButton").on("click", handleNegative);
     $(".operatorButton").on("click", handleOperator);
     $("#op_equal").on("click", handleEqual);
     $("#clear_ce").on("click", handleCE);
     $("#clear_c").on("click", handleC);
+    $("#orderOfOperationSwitch").on("click", handleOrderOfOperationSwitch);
 }
 
 function handleNumber() {
@@ -36,29 +46,36 @@ function handleNumber() {
     else{
         calcInput[calcInput.length - 1] += input;
     }
-    $("#display").find("p").text(calcInput[calcInput.length - 1]);
+    display(calcInput[calcInput.length - 1]);
     console.log("Input: ", calcInput);
+}
 
+function handleNegative(){
+    if(calcInput.length === 0 || calcInput[calcInput.length-1] === "+" || calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "x" || calcInput[calcInput.length-1] === "÷") {
+        if (numInputInitiated === false) {
+        numInputInitiated = true;
+        calcInput.push("-")
+        }
+    }
 }
 
 function handleOperator(){
     lastButtonPressedWasEqual = false;
     var operator = $(this).find("p").text().toString();
-    if(calcInput.length !== 0){
-        var lastIndex = calcInput.length - 1;
-        if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //three equals doesn't work
-            //repeat operator
-            calcInput[lastIndex] = operator;
-        }
-        else{
-            calcInput.push(operator);
-        }
-        numInputInitiated = false;
-        calculateEquation();
-        console.log("Input: ", calcInput);
-
+    if(calcInput.length === 0) {
+        calcInput[0] = 0;
     }
-
+    var lastIndex = calcInput.length - 1;
+    if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //implement negative number
+        //repeat operator
+        calcInput[lastIndex] = operator;
+    }
+    else{
+        calcInput.push(operator);
+    }
+    numInputInitiated = false;
+    calculateEquation();
+    console.log("Input: ", calcInput);
 }
 
 function calculatePair(operatorIndex, inputArray){
@@ -75,7 +92,7 @@ function calculatePair(operatorIndex, inputArray){
             total = parseFloat(firstNumber) * parseFloat(secondNumber);
             break;
         case "÷":
-            if(parseFloat(secondNumber) == 0){
+            if(parseFloat(secondNumber) === 0){
                 total = "ERROR";
             }
             else{
@@ -89,43 +106,46 @@ function calculatePair(operatorIndex, inputArray){
     }
     //remove numbers and operator - replace with total
     inputArray.splice(operatorIndex-1, 3, total);
-
-    $("#display").find("p").text(total);
-    return total;   //unused return
+    display(total);
 }
 
 function calculateEquation(){
     if(calcInput.length > 2) {
-        if(lastButtonPressedWasEqual === true){
-            //check last input to determine what to do
-
-        }
-        //clone calcInput (don't want to change it if implementing order of operations functionality later)
         var equationToSolve = [];
         for (var i = 0; i < calcInput.length; i++) {
             equationToSolve.push(calcInput[i])
         }
-        //if operator is at the end, get rid of it
         var lastValueInEquationToSolve = equationToSolve[equationToSolve.length-1];
         if(lastValueInEquationToSolve === "+" || lastValueInEquationToSolve === "-" || lastValueInEquationToSolve === "x" || lastValueInEquationToSolve === "÷" ){
             equationToSolve.pop();
         }
-        while(equationToSolve.indexOf("x") !== -1 || equationToSolve.indexOf("÷") !== -1) {
-            for (var i = 0; i < equationToSolve.length; i++) {
-                // var didMath = false;
-                if (equationToSolve[i] === "x" || equationToSolve[i] === "÷") {  //TO DO implement order of operation switch
-                    calculatePair(i, equationToSolve);
-                    i=i-1; //compensates for calculatePair() - which removes from array.
+        if(orderOfOperationMode) {
+            while (equationToSolve.indexOf("x") !== -1 || equationToSolve.indexOf("÷") !== -1) {
+                for (var i = 0; i < equationToSolve.length; i++) {
+                    if (equationToSolve[i] === "x" || equationToSolve[i] === "÷") {
+                        calculatePair(i, equationToSolve);
+                        i = i - 1; //compensates for calculatePair() - which removes from array.
+                    }
+                }
+            }
+            console.log("Solve: ", equationToSolve);
+            while (equationToSolve.indexOf("+") !== -1 || equationToSolve.indexOf("-") !== -1) {
+                for (var i = 0; i < equationToSolve.length; i++) {
+                    if (equationToSolve[i] === "+" || equationToSolve[i] === "-") {
+                        calculatePair(i, equationToSolve);
+                        i = i - 1;  //compensates for calculatePair() - which removes from array.
+                    }
                 }
             }
             console.log("Solve: ", equationToSolve)
         }
-        while(equationToSolve.indexOf("+") !== -1 || equationToSolve.indexOf("-") !==-1) {
-            for (var i = 0; i < equationToSolve.length; i++) {
-                // var didMath = false;
-                if (equationToSolve[i] === "+" || equationToSolve[i] === "-") {
-                    calculatePair(i, equationToSolve);
-                    i=i-1;  //compensates for calculatePair() - which removes from array.
+        else{
+            while (equationToSolve.length > 1){
+                for (var i = 0; i < equationToSolve.length; i++) {
+                    if (equationToSolve[i] === "x" || equationToSolve[i] === "÷" || equationToSolve[i] === "+" || equationToSolve[i] === "-") {
+                        calculatePair(i, equationToSolve);
+                        i = i - 1; //compensates for calculatePair() - which removes from array.
+                    }
                 }
             }
             console.log("Solve: ", equationToSolve)
@@ -134,45 +154,73 @@ function calculateEquation(){
 }
 
 function handleEqual(){
-    if(lastButtonPressedWasEqual){
-        operationRepeat();
+    if(calcInput.length > 1) {
+        if (lastButtonPressedWasEqual) {
+            operationRepeat();
+        }
+        var lastInput = calcInput[calcInput.length - 1];
+        if (lastInput === "+" || lastInput === "-" || lastInput === "x" || lastInput === "+") {
+            if(calcInput.length === 2){
+                partialOperand();
+            }
+            else{
+                operationRollover();
+            }
+        }
+        calculateEquation();
+        lastButtonPressedWasEqual = true;
     }
-    var lastInput = calcInput[calcInput.length-1];
-    if (lastInput === "+" || lastInput === "-" || lastInput === "x" || lastInput === "+"){
-        operationRollover();
-    }
-    calculateEquation();
-    lastButtonPressedWasEqual = true;
 }
 
-//pressing equal more than once
-function operationRepeat(){     //NEEDS WORK!  REPEAT AFTER ROLLOVER IS BROKEN!
+function partialOperand(){
+    calcInput[2] = calcInput[0];
+}
+
+function operationRepeat(){
     var secondToLastInput = calcInput[calcInput.length-2];
     var lastInput = calcInput[calcInput.length-1];
-    console.log("REPEATING, ADDING " + secondToLastInput + " " + lastInput);
-    console.log(calcInput);
     calcInput.push(secondToLastInput);
     calcInput.push(lastInput);
-
 }
 
-function operationRollover(){   //NEEDS WORK!  REPEAT AFTER ROLLOVER IS BROKEN!
-    console.log("ROLLOVER - PUSHING " + total);
-    console.log(calcInput);
+function operationRollover(){
     calcInput.push(total.toString());
 }
-//pressing equal more than once
 
 function handleCE(){
+    if(lastButtonPressedWasEqual === true){
+        var lastOperator = calcInput[calcInput.length-2];
+        var lastNumber = calcInput[calcInput.length-1];
+        handleC();
+        calcInput[0] = 0;
+        calcInput[1] = lastOperator;
+        calcInput[2] = lastNumber;
+        return
+    }
     lastButtonPressedWasEqual = false;
     calcInput.pop();
     calcInput.push("");
-    $("#display").find("p").text(0);
+    display(0);
 }
+
 function handleC(){
     lastButtonPressedWasEqual = false;
     calcInput = [];
     numInputInitiated = false;
     var total = 0;
-    $("#display").find("p").text(total);
+    display(total);
+}
+
+function handleOrderOfOperationSwitch(){
+    if(orderOfOperationMode === true){
+        orderOfOperationMode = false;
+        $("#orderOfOperationSwitch").css("background-color", "#cd0a0a");
+        console.log("Order of Operation OFF")
+    }
+    else{
+        orderOfOperationMode = true;
+        $("#orderOfOperationSwitch").css("background-color", "#00f400");
+        console.log("Order of Operation ON")
+    }
+    lastButtonPressedWasEqual = false;
 }
