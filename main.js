@@ -10,6 +10,67 @@ var lastButtonPressedWasEqual = false;
 var pressedCEafterEqual = false;
 var orderOfOperationMode = true;
 
+$(window).keyup(function(event){
+    console.log(event.key);
+    switch(event.key) {
+        case "0":
+            $("#num_0").click();
+            break;
+        case "1":
+            $("#num_1").click();
+            break;
+        case "2":
+            $("#num_2").click();
+            break;
+        case "3":
+            $("#num_3").click();
+            break;
+        case "4":
+            $("#num_4").click();
+            break;
+        case "5":
+            $("#num_5").click();
+            break;
+        case "6":
+            $("#num_6").click();
+            break;
+        case "7":
+            $("#num_7").click();
+            break;
+        case "8":
+            $("#num_8").click();
+            break;
+        case "9":
+            $("#num_9").click();
+            break;
+        case "+":
+            $("#op_add").click();
+            break;
+        case "-":
+            $("#op_subtract").click();
+            break;
+        case "*":
+            $("#op_multiply").click();
+            break;
+        case "/":
+            $("#op_divide").click();
+            break;
+        case ".":
+            $("#decimal").click();
+            console.log("DECIAMALJDSLFJ")
+            break;
+        case "Backspace":
+            $("#clear_c").click();
+            break;
+        case "Delete":
+            $("#clear_ce").click();
+            break;
+        case "Enter":
+            $("#op_equal").click();
+            break;
+    }
+});
+
 function display(toDisplay){
     if(isNaN(toDisplay) === true && toDisplay !== "-"){
         toDisplay = "ERROR";
