@@ -10,7 +10,7 @@ var lastButtonPressedWasEqual = false;
 var orderOfOperationMode = true;
 
 function display(toDisplay){
-    if(isNaN(toDisplay) === true){
+    if(isNaN(toDisplay) === true && toDisplay !== "-"){
         toDisplay = "ERROR";
     }
     $("#display").find("p").text(toDisplay)
@@ -54,7 +54,8 @@ function handleNegative(){
     if(calcInput.length === 0 || calcInput[calcInput.length-1] === "+" || calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "x" || calcInput[calcInput.length-1] === "÷") {
         if (numInputInitiated === false) {
         numInputInitiated = true;
-        calcInput.push("-")
+        calcInput.push("-");
+        display("-");
         }
     }
 }
