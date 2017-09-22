@@ -7,7 +7,69 @@ var calcInput = [];
 var numInputInitiated = false;
 var total = 0;
 var lastButtonPressedWasEqual = false;
+var pressedCEafterEqual = false;
 var orderOfOperationMode = true;
+
+$(window).keyup(function(event){
+    console.log(event.key);
+    switch(event.key) {
+        case "0":
+            $("#num_0").click();
+            break;
+        case "1":
+            $("#num_1").click();
+            break;
+        case "2":
+            $("#num_2").click();
+            break;
+        case "3":
+            $("#num_3").click();
+            break;
+        case "4":
+            $("#num_4").click();
+            break;
+        case "5":
+            $("#num_5").click();
+            break;
+        case "6":
+            $("#num_6").click();
+            break;
+        case "7":
+            $("#num_7").click();
+            break;
+        case "8":
+            $("#num_8").click();
+            break;
+        case "9":
+            $("#num_9").click();
+            break;
+        case "+":
+            $("#op_add").click();
+            break;
+        case "-":
+            $("#op_subtract").click();
+            break;
+        case "*":
+            $("#op_multiply").click();
+            break;
+        case "/":
+            $("#op_divide").click();
+            break;
+        case ".":
+            $("#decimal").click();
+            console.log("DECIAMALJDSLFJ")
+            break;
+        case "Backspace":
+            $("#clear_c").click();
+            break;
+        case "Delete":
+            $("#clear_ce").click();
+            break;
+        case "Enter":
+            $("#op_equal").click();
+            break;
+    }
+});
 
 function display(toDisplay){
     if(isNaN(toDisplay) === true && toDisplay !== "-"){
@@ -26,11 +88,18 @@ function applyClickHandlers(){
     $("#orderOfOperationSwitch").on("click", handleOrderOfOperationSwitch);
 }
 
+function lastButtonPressedWasOperator(){
+    return (calcInput[calcInput.length - 1] === "+" || calcInput[calcInput.length - 1] === "-" || calcInput[calcInput.length - 1] === "x" || calcInput[calcInput.length - 1] === "÷")
+}
+
 function handleNumber() {
     if (lastButtonPressedWasEqual === true) {
         handleC();
     }
-    lastButtonPressedWasEqual = false;
+    if(pressedCEafterEqual){
+        handleC();
+        console.log("CE THEN NUMBER!")
+    }
     var input = $(this).find("p").text();
     if (calcInput.length > 0){
         if(input === "."){
@@ -48,35 +117,59 @@ function handleNumber() {
     }
     display(calcInput[calcInput.length - 1]);
     console.log("Input: ", calcInput);
+    lastButtonPressedWasEqual = false;
+    pressedCEafterEqual = false;
 }
 
-function handleNegative(){
-    if(calcInput.length === 0 || calcInput[calcInput.length-1] === "+" || calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "x" || calcInput[calcInput.length-1] === "÷") {
-        if (numInputInitiated === false) {
-        numInputInitiated = true;
-        calcInput.push("-");
-        display("-");
+function handleNegative() {
+    if (numInputInitiated === false) {
+        if (calcInput.length === 0 || lastButtonPressedWasOperator() === true) {
+            numInputInitiated = true;
+            calcInput.push("-");
+            display("-");
         }
     }
+    else if(lastButtonPressedWasEqual === false){
+        if (calcInput[calcInput.length - 1] === "-") {
+            calcInput.pop();
+            display(0);
+            numInputInitiated = false;
+        }
+        else{
+            calcInput[calcInput.length-1] = calcInput[calcInput.length-1] * -1;
+            display(calcInput[calcInput.length-1])
+        }
+    }
+    else{
+        total = total*-1;
+        calcInput = [];
+        calcInput[0] = total;
+        display(total);
+    }
+    console.log("Input: ", calcInput);
 }
 
 function handleOperator(){
-    lastButtonPressedWasEqual = false;
+    if(pressedCEafterEqual === true){
+        handleC();
+        console.log("CE THEN OPERATOR!")
+    }
     var operator = $(this).find("p").text().toString();
     if(calcInput.length === 0) {
         calcInput[0] = 0;
     }
-    var lastIndex = calcInput.length - 1;
-    if(calcInput[lastIndex].toString() === "+" || calcInput[lastIndex] === "-" || calcInput[lastIndex] === "x" || calcInput[lastIndex] === "÷"){   //implement negative number
+    if(lastButtonPressedWasOperator() === true){
         //repeat operator
         calcInput[lastIndex] = operator;
     }
     else{
         calcInput.push(operator);
     }
-    numInputInitiated = false;
     calculateEquation();
     console.log("Input: ", calcInput);
+    numInputInitiated = false;
+    lastButtonPressedWasEqual = false;
+    pressedCEafterEqual = false;
 }
 
 function calculatePair(operatorIndex, inputArray){
@@ -112,8 +205,11 @@ function calculatePair(operatorIndex, inputArray){
 
 function calculateEquation(){
     if(calcInput.length > 2) {
+        if(calcInput[calcInput.length-1] === ""){
+            calcInput[calcInput.length-1] = 0;
+        }
         var equationToSolve = [];
-        for (var i = 0; i < calcInput.length; i++) {
+        for (var i = 0; i < calcInput.length; i++) {    //make clone of calcInput to preserve it
             equationToSolve.push(calcInput[i])
         }
         var lastValueInEquationToSolve = equationToSolve[equationToSolve.length-1];
@@ -128,8 +224,8 @@ function calculateEquation(){
                         i = i - 1; //compensates for calculatePair() - which removes from array.
                     }
                 }
+                console.log("Solve Multiplication/Division: ", equationToSolve);
             }
-            console.log("Solve: ", equationToSolve);
             while (equationToSolve.indexOf("+") !== -1 || equationToSolve.indexOf("-") !== -1) {
                 for (var i = 0; i < equationToSolve.length; i++) {
                     if (equationToSolve[i] === "+" || equationToSolve[i] === "-") {
@@ -137,8 +233,8 @@ function calculateEquation(){
                         i = i - 1;  //compensates for calculatePair() - which removes from array.
                     }
                 }
+                console.log("Solve Addition/Subtraction: ", equationToSolve)
             }
-            console.log("Solve: ", equationToSolve)
         }
         else{
             while (equationToSolve.length > 1){
@@ -149,7 +245,7 @@ function calculateEquation(){
                     }
                 }
             }
-            console.log("Solve: ", equationToSolve)
+            console.log("Solve3: ", equationToSolve)
         }
     }
 }
@@ -159,8 +255,7 @@ function handleEqual(){
         if (lastButtonPressedWasEqual) {
             operationRepeat();
         }
-        var lastInput = calcInput[calcInput.length - 1];
-        if (lastInput === "+" || lastInput === "-" || lastInput === "x" || lastInput === "+") {
+        if (lastButtonPressedWasOperator() === true) {
             if(calcInput.length === 2){
                 partialOperand();
             }
@@ -170,6 +265,7 @@ function handleEqual(){
         }
         calculateEquation();
         lastButtonPressedWasEqual = true;
+        pressedCEafterEqual = false;
     }
 }
 
@@ -189,6 +285,10 @@ function operationRollover(){
 }
 
 function handleCE(){
+    if(lastButtonPressedWasEqual){
+        pressedCEafterEqual = true;
+        console.log("PRESSED CE AFTER EQUAL")
+    }
     if(lastButtonPressedWasEqual === true){
         var lastOperator = calcInput[calcInput.length-2];
         var lastNumber = calcInput[calcInput.length-1];
@@ -196,20 +296,23 @@ function handleCE(){
         calcInput[0] = 0;
         calcInput[1] = lastOperator;
         calcInput[2] = lastNumber;
+        console.log("Input: ", calcInput);
+        lastButtonPressedWasEqual = false;
         return
     }
-    lastButtonPressedWasEqual = false;
     calcInput.pop();
     calcInput.push("");
     display(0);
+    console.log("Input: ", calcInput);
+    lastButtonPressedWasEqual = false;
 }
 
 function handleC(){
-    lastButtonPressedWasEqual = false;
     calcInput = [];
     numInputInitiated = false;
     var total = 0;
     display(total);
+    lastButtonPressedWasEqual = false;
 }
 
 function handleOrderOfOperationSwitch(){
@@ -224,4 +327,5 @@ function handleOrderOfOperationSwitch(){
         console.log("Order of Operation ON")
     }
     lastButtonPressedWasEqual = false;
+    pressedCEafterEqual = false;
 }
