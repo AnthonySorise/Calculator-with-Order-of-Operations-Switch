@@ -11,7 +11,6 @@ var pressedCEafterEqual = false;
 var orderOfOperationMode = true;
 
 $(window).keyup(function(event){
-    console.log(event.key);
     switch(event.key) {
         case "0":
             $("#num_0").click();
@@ -150,6 +149,7 @@ function handleNegative() {
 }
 
 function handleOperator(){
+
     if(pressedCEafterEqual === true){
         handleC();
         console.log("CE THEN OPERATOR!")
@@ -158,9 +158,9 @@ function handleOperator(){
     if(calcInput.length === 0) {
         calcInput[0] = 0;
     }
-    if(lastButtonPressedWasOperator() === true){
+    else if(lastButtonPressedWasOperator() === true){
         //repeat operator
-        calcInput[lastIndex] = operator;
+        calcInput[calcInput.length-1] = operator;
     }
     else{
         calcInput.push(operator);
