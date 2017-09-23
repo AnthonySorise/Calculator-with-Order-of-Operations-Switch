@@ -56,7 +56,6 @@ $(window).keyup(function(event){
             break;
         case ".":
             $("#decimal").click();
-            console.log("DECIAMALJDSLFJ")
             break;
         case "Backspace":
             $("#clear_c").click();
@@ -97,7 +96,6 @@ function handleNumber() {
     }
     if(pressedCEafterEqual){
         handleC();
-        console.log("CE THEN NUMBER!")
     }
     var input = $(this).find("p").text();
     if (calcInput.length > 0){
@@ -152,7 +150,6 @@ function handleOperator(){
 
     if(pressedCEafterEqual === true){
         handleC();
-        console.log("CE THEN OPERATOR!")
     }
     var operator = $(this).find("p").text().toString();
     if(calcInput.length === 0) {
@@ -245,7 +242,7 @@ function calculateEquation(){
                     }
                 }
             }
-            console.log("Solve3: ", equationToSolve)
+            console.log("Solve: ", equationToSolve)
         }
     }
 }
@@ -287,7 +284,6 @@ function operationRollover(){
 function handleCE(){
     if(lastButtonPressedWasEqual){
         pressedCEafterEqual = true;
-        console.log("PRESSED CE AFTER EQUAL")
     }
     if(lastButtonPressedWasEqual === true){
         var lastOperator = calcInput[calcInput.length-2];
