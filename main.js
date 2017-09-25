@@ -471,10 +471,19 @@ function partialOperand(){
 }
 
 function operationRepeat(){
-    var secondToLastInput = calcInput[calcInput.length-2];
-    var lastInput = calcInput[calcInput.length-1];
-    calcInput.push(secondToLastInput);
-    calcInput.push(lastInput);
+    var lastOperator;
+    var lastNumber;
+    for(var i = calcInput.length-1; i>=0; i--){
+        if(isNaN(parseInt(calcInput[i])) === false && typeof lastNumber === "undefined"){
+            lastNumber = calcInput[i];
+        }
+        else if((calcInput[i] === "+" ||  calcInput[i] === "-" || calcInput[i] === "x" || calcInput[i] === "/") && typeof lastOperator === "undefined"){
+            lastOperator = calcInput[i]
+        }
+
+    }
+    calcInput.push(lastOperator);
+    calcInput.push(lastNumber);
 }
 
 function operationRollover(){
