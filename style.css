@@ -44,15 +44,11 @@ body{
     margin: 1% auto 1% auto;
 }
 
-/*.row#orderOfOperationRow{*/
-    /*height:7%;*/
-/*}*/
-
 .button{
     width: 23%;
     height:90%;
     margin:auto;
-    font-size: 8vmin;
+    font-size: 6vmin;
     display:flex;
     cursor:pointer;
     border-radius: 15px;
@@ -60,15 +56,23 @@ body{
 
 .button#orderOfOperationSwitch{
     background-color: #00f400;
-    height: 45%;
-    width: 17.5%;
+    height: 90%;
+    width: 23%;
     margin-left: 1%;
+    font-size: 16px;
+    display:flex;
+    text-align: center;
+    justify-items: center;
+    align-items: center;
+    color: black;
+}
+.button#orderOfOperationSwitch>p{
+    margin:0 3px 0 3px;
 }
 
-#orderOfOperationModeText{
-    width:55%;
-    display:flex;
-    align-items: center;
+
+.button#orderOfOperationSwitch:hover{
+    color: black;
 }
 
 #orderOfOperationModeText>p{
@@ -76,8 +80,8 @@ body{
     font-size: 1.25em;
 }
 
-.button:active {
-    transform: translateY(2px);
+.button:active, .active{
+    transform: translateY(3px);
 }
 #buttonContainer,.button>p{
     margin:auto;
@@ -96,12 +100,18 @@ body{
 .numberButton{
     background-color: #0a2b1d;
 }
-.operatorButton, #op_equal, #negativeButton{
+.operatorButton, #op_equal, #negativeButton, .parenthesisButton{
     background-color: lightgrey;
     color:#0a2b1d;
 }
 .operatorButton#op_multiply{
-    font-size: 6vmin;
+    font-size: 4.5vmin;
+}
+#negativeButton{
+    font-size: 4.5vmin;
+}
+.parenthesisButton{
+    font-size: 4vmin;
 }
 #op_equal{
     width:48%;
