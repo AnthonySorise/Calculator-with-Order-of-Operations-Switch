@@ -263,7 +263,7 @@ function handleNegative() {
 }
 
 function handleParenthesisLeft(){
-    if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true)) {
+    if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true) || calcInput[calcInput.length-1] === "(") {
         calcInput.push("(");
         display("(");
         parenthesisToClose += 1;
@@ -367,7 +367,7 @@ function calculateEquation(){
 }
 
 function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
-    while (equationToSolve.indexOf("(") !== -1 || equationToSolve.indexOf(")") !== -1) {
+    while (equationToSolve.indexOf("(") !== -1) {
         var leftParenIndexes = [];
         var rightParenIndexes = [];
         for (var i = 0; i < equationToSolve.length; i++){
@@ -379,21 +379,40 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
             }
         }
         if (rightParenIndexes.length < leftParenIndexes.length){    //close parenthesis if it hasn't been done already
-            equationToSolve.push(")");
-            rightParenIndexes.push(equationToSolve.length-1)
+            while(rightParenIndexes.length - leftParenIndexes.length !== 0)
+            {
+                equationToSolve.push(")");
+                rightParenIndexes.push(equationToSolve.length - 1);
+                console.log("TEST equation to solve, ", equationToSolve)
+            }
         }
-        //get the inner parenthesis - last left, first right
-        //do regular order of operation (copy and paste?)
-        //remove the used parenthesis, and equation, replace with total
-        //console log
-        var lastLeftParen = leftParenIndexes[leftParenIndexes.length-1];
-        var firstRightParen = rightParenIndexes[0];
+
+        var leftParen = 0;
+        var rightParen = 0;
+        var foundMatchingLeftParen = false;
+
+        for(var i = equationToSolve.length-1; i >=0; i--){
+            if(equationToSolve[i] === ")"){
+                rightParen = i;
+            }
+        }
+
+        for(var i = rightParen; i >=0; i--){
+            if(equationToSolve[i] === "("){
+                if(foundMatchingLeftParen === false){
+                    leftParen = i;
+                    foundMatchingLeftParen = true;
+                }
+
+            }
+        }
+
         var parenEquation = [];
-        for(var i = lastLeftParen + 1; i < firstRightParen; i++){
+        for(var i = leftParen + 1; i < rightParen; i++){
             parenEquation.push(equationToSolve[i]);
         }
-        equationToSolve.splice(firstRightParen, 1);
-        equationToSolve.splice(lastLeftParen, firstRightParen-lastLeftParen, solveEquationWithOrderOfOperation(parenEquation, false)[0]);
+        equationToSolve.splice(rightParen, 1);
+        equationToSolve.splice(leftParen, rightParen-leftParen, solveEquationWithOrderOfOperation(parenEquation, false)[0]);
         console.log("Solve Parentheses: ", equationToSolve)
     }
     while (equationToSolve.indexOf("x") !== -1 || equationToSolve.indexOf("÷") !== -1) {
