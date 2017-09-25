@@ -91,7 +91,6 @@ $(window).keydown(function(event){
             break;
     }
 });
-
 $(window).keyup(function(event){
     switch(event.key) {
         case "0":
@@ -171,14 +170,6 @@ $(window).keyup(function(event){
             break;
     }
 });
-
-function display(toDisplay){
-    if(isNaN(toDisplay) === true && (toDisplay !== "-" && toDisplay !== "(" && toDisplay !== ")")){
-        toDisplay = "ERROR";
-    }
-    $("#display").find("p").text(toDisplay)
-}
-
 function applyClickHandlers(){
     $(".numberButton").on("click", handleNumber);
     $("#negativeButton").on("click", handleNegative);
@@ -190,11 +181,15 @@ function applyClickHandlers(){
     $("#clear_c").on("click", handleC);
     $("#orderOfOperationSwitch").on("click", handleOrderOfOperationSwitch);
 }
-
+function display(toDisplay){
+    if(isNaN(toDisplay) === true && (toDisplay !== "-" && toDisplay !== "(" && toDisplay !== ")")){
+        toDisplay = "ERROR";
+    }
+    $("#display").find("p").text(toDisplay)
+}
 function lastButtonPressedWasOperator(){
     return (calcInput[calcInput.length - 1] === "+" || calcInput[calcInput.length - 1] === "-" || calcInput[calcInput.length - 1] === "x" || calcInput[calcInput.length - 1] === "÷")
 }
-
 function handleNumber() {
     if (lastButtonPressedWasEqual === true) {
         handleC();
@@ -232,9 +227,8 @@ function handleNumber() {
     lastButtonPressedWasCE = false;
     pressedCEafterEqual = false;
 }
-
 function handleNegative() {
-    if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true)) {
+    if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true) || calcInput[calcInput.length-1] === "(") {
         numInputInitiated = true;
         calcInput.push("-");
         display("-");
@@ -261,7 +255,6 @@ function handleNegative() {
     lastButtonPressedWasCE = false;
     pressedCEafterEqual = false;
 }
-
 function handleParenthesisLeft(){
     if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true) || calcInput[calcInput.length-1] === "(") {
         calcInput.push("(");
@@ -272,7 +265,6 @@ function handleParenthesisLeft(){
         pressedCEafterEqual = false;
         console.log("Input: ", calcInput)
     }
-
 }
 function handleParenthesisRight(){
     if(parenthesisToClose > 0 && calcInput[calcInput.length-1] !== "("){
@@ -286,7 +278,6 @@ function handleParenthesisRight(){
     }
 
 }
-
 function handleOperator(){
     var operator = $(this).find("p").text().toString();
     if(pressedCEafterEqual === true){
@@ -311,7 +302,6 @@ function handleOperator(){
     lastButtonPressedWasCE = false;
     pressedCEafterEqual = false;
 }
-
 function calculatePair(operatorIndex, inputArray){
     var firstNumber = inputArray[operatorIndex - 1];
     var secondNumber = inputArray[operatorIndex + 1];
@@ -342,7 +332,6 @@ function calculatePair(operatorIndex, inputArray){
     inputArray.splice(operatorIndex-1, 3, total);
     display(total);
 }
-
 function calculateEquation(){
     if(calcInput.length > 2) {
         var equationToSolve = [];
@@ -350,10 +339,6 @@ function calculateEquation(){
             equationToSolve.push(calcInput[i])
         }
         var lastValueInEquationToSolve = equationToSolve[equationToSolve.length-1];
-        if(lastValueInEquationToSolve === "("){
-            equationToSolve.pop();
-        }
-        lastValueInEquationToSolve = equationToSolve[equationToSolve.length-1];
         if(lastValueInEquationToSolve === "+" || lastValueInEquationToSolve === "-" || lastValueInEquationToSolve === "x" || lastValueInEquationToSolve === "÷" ){
             equationToSolve.pop();
         }
@@ -365,7 +350,6 @@ function calculateEquation(){
         }
     }
 }
-
 function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
     while (equationToSolve.indexOf("(") !== -1) {
         var leftParenIndexes = [];
@@ -386,27 +370,22 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
                 console.log("TEST equation to solve, ", equationToSolve)
             }
         }
-
         var leftParen = 0;
         var rightParen = 0;
         var foundMatchingLeftParen = false;
-
         for(var i = equationToSolve.length-1; i >=0; i--){
             if(equationToSolve[i] === ")"){
                 rightParen = i;
             }
         }
-
         for(var i = rightParen; i >=0; i--){
             if(equationToSolve[i] === "("){
                 if(foundMatchingLeftParen === false){
                     leftParen = i;
                     foundMatchingLeftParen = true;
                 }
-
             }
         }
-
         var parenEquation = [];
         for(var i = leftParen + 1; i < rightParen; i++){
             parenEquation.push(equationToSolve[i]);
@@ -459,8 +438,15 @@ function solveEquationWithSuccessiveOperation(equationToSolve){
     console.log("Solve: ", equationToSolve)
     return equationToSolve;
 }
-
 function handleEqual(){
+    while(calcInput[calcInput.length-1] === "(") {
+        calcInput.pop();
+    }
+    if (calcInput[calcInput.length-1] === "-"){
+        if(calcInput[calcInput.length-2] === "+" || (calcInput[calcInput.length-2] === "-") || (calcInput[calcInput.length-2] === "x") || (calcInput[calcInput.length-2] === "÷")){    //if two operators in a row (second is -), then it's a negative symbol.  Remove it.{
+            calcInput.pop();
+        }
+    }
     if(calcInput.length > 1) {
         if (lastButtonPressedWasEqual) {
             operationRepeat();
@@ -484,11 +470,9 @@ function handleEqual(){
         pressedCEafterEqual = false;
     }
 }
-
 function partialOperand(){
     calcInput[2] = calcInput[0];
 }
-
 function operationRepeat(){
     var lastOperator;
     var lastNumber;
@@ -496,26 +480,23 @@ function operationRepeat(){
         if(isNaN(parseInt(calcInput[i])) === false && typeof lastNumber === "undefined"){
             lastNumber = calcInput[i];
         }
-        else if((calcInput[i] === "+" ||  calcInput[i] === "-" || calcInput[i] === "x" || calcInput[i] === "/") && typeof lastOperator === "undefined"){
+        else if((calcInput[i] === "+" ||  calcInput[i] === "-" || calcInput[i] === "x" || calcInput[i] === "÷") && typeof lastOperator === "undefined"){
             lastOperator = calcInput[i]
         }
-
     }
     calcInput.push(lastOperator);
     calcInput.push(lastNumber);
 }
-
 function operationRollover(){
     calcInput.push(total.toString());
 }
-
 function handleCE() {
     if(!lastButtonPressedWasCE) {
         if(lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")"){
             while (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
                 if (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
                     calcInput.pop();
-                    console.log("Input: ", calcInput)
+                    console.log("Input: ", calcInput);
                     lastButtonPressedWasEqual = false;
                     lastButtonPressedWasCE = true;
                     numInputInitiated = false;
@@ -545,7 +526,6 @@ function handleCE() {
         }
     }
 }
-
 function handleC(){
     calcInput = [];
     numInputInitiated = false;
@@ -554,7 +534,6 @@ function handleC(){
     lastButtonPressedWasEqual = false;
     console.log("Input: ", calcInput)
 }
-
 function handleOrderOfOperationSwitch(){
     if(orderOfOperationMode === true){
         orderOfOperationMode = false;
