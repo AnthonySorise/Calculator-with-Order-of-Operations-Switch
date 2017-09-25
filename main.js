@@ -470,9 +470,7 @@ function partialOperand(){
     calcInput[2] = calcInput[0];
 }
 
-function operationRepeat(){ //fix
-    // var lastOperator = calcInput[calcInput.length-2];
-    // var lastNumber = calcInput[calcInput.length-1];
+function operationRepeat(){
     var lastOperator;
     var lastNumber;
     for(var i = calcInput.length-1; i>=0; i--){
@@ -488,7 +486,7 @@ function operationRepeat(){ //fix
     calcInput.push(lastNumber);
 }
 
-function operationRollover(){   //fix
+function operationRollover(){
     calcInput.push(total.toString());
 }
 
