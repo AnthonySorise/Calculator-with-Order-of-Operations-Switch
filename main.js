@@ -476,10 +476,8 @@ function operationRepeat(){ //fix
     var lastOperator;
     var lastNumber;
     for(var i = calcInput.length-1; i>=0; i--){
-        console.log("TYPE OF", typeof calcInput[i])
         if(isNaN(parseInt(calcInput[i])) === false && typeof lastNumber === "undefined"){
             lastNumber = calcInput[i];
-            console.log("lastNumber", lastNumber)
         }
         else if((calcInput[i] === "+" ||  calcInput[i] === "-" || calcInput[i] === "x" || calcInput[i] === "/") && typeof lastOperator === "undefined"){
             lastOperator = calcInput[i]
@@ -491,8 +489,6 @@ function operationRepeat(){ //fix
 }
 
 function operationRollover(){   //fix
-    console.log("operationROllver")
-    console.log("total", total)
     calcInput.push(total.toString());
 }
 
