@@ -381,7 +381,6 @@ function handleOrderOfOperationSwitch(){
         $("#orderOfOperationSwitch").css("background-color", "#cd0a0a");
         console.log("Order of Operation OFF");
         log("Order of Operation OFF");
-
     }
     else{
         orderOfOperationMode = true;
