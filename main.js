@@ -260,6 +260,16 @@ function handleNegative() {
     pressedCEafterEqual = false;
 }
 function handleParenthesisLeft(){
+    if(numInputInitiated){
+        if(calcInput[calcInput.length-1] === "-"){
+            calcInput[calcInput.length-1] += 1;
+        }
+        calcInput.push("x");
+        numInputInitiated = false;
+        log("Input: " + calcInput.join(" "));
+    }
+
+
     if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true) || calcInput[calcInput.length-1] === "(") {
         calcInput.push("(");
         display("(");
@@ -272,7 +282,7 @@ function handleParenthesisLeft(){
     }
 }
 function handleParenthesisRight(){
-    if(parenthesisToClose > 0 && calcInput[calcInput.length-1] !== "("){
+    if(parenthesisToClose > 0 && calcInput[calcInput.length-1] !== "(" && numInputInitiated === true){
         calcInput.push(")");
         display(")");
         parenthesisToClose -= 1;
@@ -285,6 +295,12 @@ function handleParenthesisRight(){
 
 }
 function handleOperator(){
+    if(calcInput[calcInput.length-1] === "("){
+        return;
+    }
+    if(calcInput[calcInput.length-1] === "-" && numInputInitiated === true && calcInput.length !== 0) {
+        return
+    }
     var operator = $(this).find("p").text().toString();
     if(pressedCEafterEqual === true){
         handleC();
@@ -293,6 +309,7 @@ function handleOperator(){
     }
     if(calcInput.length === 0) {
         calcInput[0] = 0;
+        calcInput.push(operator)
     }
     else if(lastButtonPressedWasOperator() === true){
         //repeat operator
@@ -372,7 +389,7 @@ function handleOrderOfOperationSwitch(){
         console.log("Order of Operation ON")
         log("Order of Operation ON");
     }
-    lastButtonPressedWasEqual = false;
+    lastButtonPressedWasEqual = false;      //should this switch?
     pressedCEafterEqual = false;
 }
 function calculatePair(operatorIndex, inputArray){
@@ -397,22 +414,52 @@ function calculatePair(operatorIndex, inputArray){
             }
             break;
     }
-    //round total to nearest 100th
+    //round total to nearest 100th  //OR USER INPUT  - TODO
     if(total !== "ERROR") {
-        total = Math.round((100 * total)) / 100
+        var userInputRounding = "100";
+        // var userDecimalValue = 0;
+        // for(var i = 0; i<calcInput.length; i++){
+        //     if(calcInput[i].indexOf(".")!== -1){
+        //         var decimalValue = 0;
+        //         var decimalFound = false;
+        //         for(var j = 0; j < calcInput[i].length; j++){
+        //             if(decimalFound){
+        //                 decimalValue +=1;
+        //             }
+        //             if(calcInput[i][j] === "."){
+        //                 decimalFound = true;
+        //             }
+        //         }
+        //         if(userInputRounding < decimalValue){
+        //             userInputRounding = decimalValue
+        //         }
+        //     }
+        //
+        // }
+        // if(userDecimalValue > 2){
+        //     userDecimalValue = userDecimalValue - 2;
+        //     for(var i = 0; i < userDecimalValue; i++){
+        //         userInputRounding += "0";
+        //     }
+        // }
+        total = Math.round((userInputRounding * total)) / userInputRounding
     }
     //remove numbers and operator - replace with total
     inputArray.splice(operatorIndex-1, 3, total);
     display(total);
 }
 function calculateEquation(){
+    // if(numInputInitiated && lastButtonPressedWasEqual){
+    //     while(calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "+" || calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "x" || calcInput[calcInput.length-1] === "÷" ){
+    //         calcInput.pop()
+    //     }
+    // }    //Attempt to fix infinite loop on (((((((-  <--- where last input it negative number.  TODO
     if(calcInput.length > 2) {
         var equationToSolve = [];
         for (var i = 0; i < calcInput.length; i++) {    //make clone of calcInput to preserve it
             equationToSolve.push(calcInput[i])
         }
-        var lastValueInEquationToSolve = equationToSolve[equationToSolve.length-1];
-        if(lastValueInEquationToSolve === "+" || lastValueInEquationToSolve === "-" || lastValueInEquationToSolve === "x" || lastValueInEquationToSolve === "÷" ){
+        while(equationToSolve[equationToSolve.length-1] === "(" || equationToSolve[equationToSolve.length-1] === "+" || equationToSolve[equationToSolve.length-1] === "-" || equationToSolve[equationToSolve.length-1] === "x" || equationToSolve[equationToSolve.length-1] === "÷" ) {   //remove operators and unclosed parentheses at end
             equationToSolve.pop();
         }
         if(orderOfOperationMode) {
@@ -420,6 +467,12 @@ function calculateEquation(){
         }
         else{
             solveEquationWithSuccessiveOperation(equationToSolve)
+        }
+        if (equationToSolve.length === 0){
+            calcInput = [];
+            total = 0;
+            display(total);
+            log("Input: " + calcInput.join())
         }
     }
 }
@@ -500,12 +553,14 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
     return equationToSolve;
 }
 function solveEquationWithSuccessiveOperation(equationToSolve){
-    for (var i = 0; i < equationToSolve.length; i++){   //remove parenthesis
-        if(equationToSolve[i] === "("){
-            equationToSolve.splice(i, 1);
-        }
-        if(equationToSolve[i] === ")"){
-            equationToSolve.splice(i, 1);
+    while(equationToSolve.indexOf("(") !== -1 || equationToSolve.indexOf(")") !== -1) { //remove parenthesis
+        for (var i = 0; i < equationToSolve.length; i++) {
+            if (equationToSolve[i] === "(") {
+                equationToSolve.splice(i, 1);
+            }
+            if (equationToSolve[i] === ")") {
+                equationToSolve.splice(i, 1);
+            }
         }
     }
     while (equationToSolve.length > 1){
@@ -524,14 +579,19 @@ function solveEquationWithSuccessiveOperation(equationToSolve){
 }
 function handleEqual(){
     logSolve = true;
-    while(calcInput[calcInput.length-1] === "(") {
-        calcInput.pop();
-    }
-    if (calcInput[calcInput.length-1] === "-"){
-        if(calcInput[calcInput.length-2] === "+" || (calcInput[calcInput.length-2] === "-") || (calcInput[calcInput.length-2] === "x") || (calcInput[calcInput.length-2] === "÷")){    //if two operators in a row (second is -), then it's a negative symbol.  Remove it.{
-            calcInput.pop();
-        }
-    }
+    // while(calcInput[calcInput.length-1] === "(") {
+    //     calcInput.pop();
+    // }
+    // if (calcInput[calcInput.length-1] === "-"){
+    //     var indexToLookBack = 2;
+    //     while(calcInput.length - indexToLookBack === "("){
+    //         indexToLookBack +=1
+    //     }
+    //     if(calcInput[calcInput.length-indexToLookBack] === "+" || (calcInput[calcInput.length-indexToLookBack] === "-") || (calcInput[calcInput.length-indexToLookBack] === "x") || (calcInput[calcInput.length-indexToLookBack] === "÷")){    //if two operators in a row (second is -), then it's a negative symbol.  Remove it.{
+    //         calcInput.pop();
+    //     }
+    // }
+    log("Input: " + calcInput.join(" "))
     if(calcInput.length > 1) {
         if (lastButtonPressedWasEqual) {
             operationRepeat();
@@ -541,7 +601,7 @@ function handleEqual(){
                 calcInput.push(0)
             }
         }
-        if (lastButtonPressedWasOperator() === true) {
+        if (lastButtonPressedWasOperator() === true && numInputInitiated === false) {
             if(calcInput.length === 2){
                 partialOperand();
             }
@@ -550,11 +610,12 @@ function handleEqual(){
             }
         }
         calculateEquation();
-        lastButtonPressedWasEqual = true;
-        lastButtonPressedWasCE = false;
-        pressedCEafterEqual = false;
     }
     logSolve = false;
+    lastButtonPressedWasEqual = true;
+    lastButtonPressedWasCE = false;
+    pressedCEafterEqual = false;
+    numInputInitiated = false;
 }
 function partialOperand(){
     calcInput[2] = calcInput[0];
@@ -572,11 +633,16 @@ function operationRepeat(){
     }
     calcInput.push(lastOperator);
     calcInput.push(lastNumber);
+    log("Input: " + calcInput.join(" "))
 }
 function operationRollover(){
     calcInput.push(total.toString());
+    log("Input: " + calcInput.join(" "))
 }
 function log(message){
+    if(message.indexOf("NaN") !== -1){
+        message = "CANNOT DIVIDE BY ZERO"
+    }
     calcHistory.unshift(message);
     if(calcHistory.length > 25){
         calcHistory.pop();
