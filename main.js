@@ -561,10 +561,8 @@ function solveEquationWithSuccessiveOperation(equationToSolve){
             if (equationToSolve[i] === ")") {
                 equationToSolve.splice(i, 1);
             }
-            console.log("EQUATION AFTER PARENS REMOVED", equationToSolve)
         }
     }
-    console.log("EQUATION AFTER PARENS REMOVED   AFTER WHILE LOOP", equationToSolve)
     while (equationToSolve.length > 1){
         for (var i = 0; i < equationToSolve.length; i++) {
             if (equationToSolve[i] === "x" || equationToSolve[i] === "÷" || equationToSolve[i] === "+" || equationToSolve[i] === "-") {
