@@ -9,6 +9,26 @@ body{
     display:flex;
     background-color: darkslateblue;
 }
+#log{
+    width:40vw;
+    height:90vh;
+    margin:auto;
+    background-color: lightsteelblue;
+    color:black;
+    border: 8px solid black;
+    box-sizing: border-box;
+}
+#log>h1{
+    margin:5px auto 0 auto;
+    font-size: 45px;
+    text-align:center;
+}
+#log>ul{
+    justify-self: flex-start;
+    list-style-type:none;
+    font-size: 20px;
+    margin:5px 0 5px 0;
+}
 #calculator{
     width: 50vw;
     height:90vh;
