@@ -11,6 +11,8 @@ var lastButtonPressedWasCE = false;
 var pressedCEafterEqual = false;
 var orderOfOperationMode = true;
 var parenthesisToClose = 0;
+var calcHistory = [];
+var logSolve = false;
 
 $(window).keydown(function(event){
     switch(event.key) {
@@ -223,6 +225,7 @@ function handleNumber() {
     }
     display(calcInput[calcInput.length - 1]);
     console.log("Input: ", calcInput);
+    log("Input: " + calcInput.join(" "));
     lastButtonPressedWasEqual = false;
     lastButtonPressedWasCE = false;
     pressedCEafterEqual = false;
@@ -251,6 +254,7 @@ function handleNegative() {
         display(total);
     }
     console.log("Input: ", calcInput);
+    log("Input: " + calcInput.join(" "));
     lastButtonPressedWasEqual = false;
     lastButtonPressedWasCE = false;
     pressedCEafterEqual = false;
@@ -264,6 +268,7 @@ function handleParenthesisLeft(){
         lastButtonPressedWasCE = false;
         pressedCEafterEqual = false;
         console.log("Input: ", calcInput)
+        log("Input: " + calcInput.join(" "));
     }
 }
 function handleParenthesisRight(){
@@ -275,6 +280,7 @@ function handleParenthesisRight(){
         lastButtonPressedWasCE = false;
         pressedCEafterEqual = false;
         console.log("Input: ", calcInput)
+        log("Input: " + calcInput.join(" "));
     }
 
 }
@@ -297,9 +303,76 @@ function handleOperator(){
     }
     calculateEquation();
     console.log("Input: ", calcInput);
+    log("Input: " + calcInput.join(" "));
     numInputInitiated = false;
     lastButtonPressedWasEqual = false;
     lastButtonPressedWasCE = false;
+    pressedCEafterEqual = false;
+}
+function handleC(){
+    calcInput = [];
+    numInputInitiated = false;
+    var total = 0;
+    display(total);
+    lastButtonPressedWasEqual = false;
+    console.log("Input: ", calcInput)
+    log("Input: " + calcInput.join(" "));
+    clearLogHistory();
+}
+function handleCE() {
+    if(!lastButtonPressedWasCE) {
+        if(lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")"){
+            while (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
+                if (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
+                    calcInput.pop();
+                    console.log("Input: ", calcInput);
+                    log("Input: " + calcInput.join(" "));
+                    lastButtonPressedWasEqual = false;
+                    lastButtonPressedWasCE = true;
+                    numInputInitiated = false;
+                }
+            }
+        }
+        else{
+            if (lastButtonPressedWasEqual) {
+                pressedCEafterEqual = true;
+                var lastOperator = calcInput[calcInput.length - 2];
+                var lastNumber = calcInput[calcInput.length - 1];
+                handleC();
+                calcInput[0] = 0;
+                calcInput[1] = lastOperator;
+                calcInput[2] = lastNumber;
+                console.log("Input: ", calcInput);
+                log("Input: " + calcInput.join(" "));
+                lastButtonPressedWasEqual = false;
+                lastButtonPressedWasCE = true;
+                return
+            }
+            calcInput.pop();
+            display(0);
+            console.log("Input: ", calcInput);
+            log("Input: " + calcInput.join(" "));
+            lastButtonPressedWasEqual = false;
+            lastButtonPressedWasCE = true;
+            numInputInitiated = false;
+        }
+    }
+}
+function handleOrderOfOperationSwitch(){
+    if(orderOfOperationMode === true){
+        orderOfOperationMode = false;
+        $("#orderOfOperationSwitch").css("background-color", "#cd0a0a");
+        console.log("Order of Operation OFF");
+        log("Order of Operation OFF");
+
+    }
+    else{
+        orderOfOperationMode = true;
+        $("#orderOfOperationSwitch").css("background-color", "#00f400");
+        console.log("Order of Operation ON")
+        log("Order of Operation ON");
+    }
+    lastButtonPressedWasEqual = false;
     pressedCEafterEqual = false;
 }
 function calculatePair(operatorIndex, inputArray){
@@ -367,7 +440,6 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
             {
                 equationToSolve.push(")");
                 rightParenIndexes.push(equationToSolve.length - 1);
-                console.log("TEST equation to solve, ", equationToSolve)
             }
         }
         var leftParen = 0;
@@ -392,7 +464,10 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
         }
         equationToSolve.splice(rightParen, 1);
         equationToSolve.splice(leftParen, rightParen-leftParen, solveEquationWithOrderOfOperation(parenEquation, false)[0]);
-        console.log("Solve Parentheses: ", equationToSolve)
+        console.log("Solve Parentheses: " + equationToSolve);
+        if(logSolve) {
+            log("Solve Parentheses: " + equationToSolve.join(" "));
+        }
     }
     while (equationToSolve.indexOf("x") !== -1 || equationToSolve.indexOf("÷") !== -1) {
         for (var i = 0; i < equationToSolve.length; i++) {
@@ -402,7 +477,10 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
             }
         }
         if(logToConsole === true) {
-            console.log("Solve Multiplication/Division: ", equationToSolve);
+            console.log("Solve Multiplication/Division: " + equationToSolve);
+            if(logSolve) {
+                log("Solve Multiplication/Division: " + equationToSolve.join(" "));
+            }
         }
     }
     while (equationToSolve.indexOf("+") !== -1 || equationToSolve.indexOf("-") !== -1) {
@@ -413,7 +491,10 @@ function solveEquationWithOrderOfOperation(equationToSolve, logToConsole){
             }
         }
         if(logToConsole === true) {
-            console.log("Solve Addition/Subtraction: ", equationToSolve)
+            console.log("Solve Addition/Subtraction: ", equationToSolve);
+            if(logSolve) {
+                log("Solve Addition/Subtraction: " + equationToSolve.join(" "));
+            }
         }
     }
     return equationToSolve;
@@ -435,10 +516,14 @@ function solveEquationWithSuccessiveOperation(equationToSolve){
             }
         }
     }
-    console.log("Solve: ", equationToSolve)
+    console.log("Solve: ", equationToSolve);
+    if(logSolve){
+        log("Solve: " + equationToSolve.join(" "));
+    }
     return equationToSolve;
 }
 function handleEqual(){
+    logSolve = true;
     while(calcInput[calcInput.length-1] === "(") {
         calcInput.pop();
     }
@@ -469,6 +554,7 @@ function handleEqual(){
         lastButtonPressedWasCE = false;
         pressedCEafterEqual = false;
     }
+    logSolve = false;
 }
 function partialOperand(){
     calcInput[2] = calcInput[0];
@@ -490,61 +576,20 @@ function operationRepeat(){
 function operationRollover(){
     calcInput.push(total.toString());
 }
-function handleCE() {
-    if(!lastButtonPressedWasCE) {
-        if(lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")"){
-            while (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
-                if (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
-                    calcInput.pop();
-                    console.log("Input: ", calcInput);
-                    lastButtonPressedWasEqual = false;
-                    lastButtonPressedWasCE = true;
-                    numInputInitiated = false;
-                }
-            }
-        }
-        else{
-            if (lastButtonPressedWasEqual) {
-                pressedCEafterEqual = true;
-                var lastOperator = calcInput[calcInput.length - 2];
-                var lastNumber = calcInput[calcInput.length - 1];
-                handleC();
-                calcInput[0] = 0;
-                calcInput[1] = lastOperator;
-                calcInput[2] = lastNumber;
-                console.log("Input: ", calcInput);
-                lastButtonPressedWasEqual = false;
-                lastButtonPressedWasCE = true;
-                return
-            }
-            calcInput.pop();
-            display(0);
-            console.log("Input: ", calcInput);
-            lastButtonPressedWasEqual = false;
-            lastButtonPressedWasCE = true;
-            numInputInitiated = false;
-        }
+function log(message){
+    calcHistory.unshift(message);
+    if(calcHistory.length > 25){
+        calcHistory.pop();
+    }
+    for(var i = 0; i < calcHistory.length-1; i++){
+        var logLI = "#log_" + (i);
+        $(logLI).text(calcHistory[i]).css("list-style-type", "square")
     }
 }
-function handleC(){
-    calcInput = [];
-    numInputInitiated = false;
-    var total = 0;
-    display(total);
-    lastButtonPressedWasEqual = false;
-    console.log("Input: ", calcInput)
-}
-function handleOrderOfOperationSwitch(){
-    if(orderOfOperationMode === true){
-        orderOfOperationMode = false;
-        $("#orderOfOperationSwitch").css("background-color", "#cd0a0a");
-        console.log("Order of Operation OFF")
+function clearLogHistory(){
+    calcHistory = [];
+    for(var i = 0; i < 25; i++){
+        var logLI = "#log_" + (i);
+        $(logLI).text("").css("list-style-type", "none")
     }
-    else{
-        orderOfOperationMode = true;
-        $("#orderOfOperationSwitch").css("background-color", "#00f400");
-        console.log("Order of Operation ON")
-    }
-    lastButtonPressedWasEqual = false;
-    pressedCEafterEqual = false;
 }
