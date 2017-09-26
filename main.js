@@ -207,9 +207,12 @@ function handleNumber() {
             }
         }
     }
-    if (!numInputInitiated) {
+    if (!numInputInitiated || calcInput[calcInput.length-1].toString() === "0") {
         numInputInitiated = true;
         if(input === "."){
+            if(calcInput[calcInput.length-1].toString() === "0") {
+                calcInput.pop();
+            }
             input = "0."
         }
         calcInput.push(input);
@@ -268,8 +271,6 @@ function handleParenthesisLeft(){
         numInputInitiated = false;
         log("Input: " + calcInput.join(" "));
     }
-
-
     if (numInputInitiated === false && (calcInput.length === 0 || lastButtonPressedWasOperator() === true) || calcInput[calcInput.length-1] === "(") {
         calcInput.push("(");
         display("(");
@@ -277,7 +278,7 @@ function handleParenthesisLeft(){
         lastButtonPressedWasEqual = false;
         lastButtonPressedWasCE = false;
         pressedCEafterEqual = false;
-        console.log("Input: ", calcInput)
+        console.log("Input: ", calcInput);
         log("Input: " + calcInput.join(" "));
     }
 }
@@ -289,10 +290,9 @@ function handleParenthesisRight(){
         lastButtonPressedWasEqual = false;
         lastButtonPressedWasCE = false;
         pressedCEafterEqual = false;
-        console.log("Input: ", calcInput)
+        console.log("Input: ", calcInput);
         log("Input: " + calcInput.join(" "));
     }
-
 }
 function handleOperator(){
     if(calcInput[calcInput.length-1] === "("){
@@ -332,7 +332,7 @@ function handleC(){
     var total = 0;
     display(total);
     lastButtonPressedWasEqual = false;
-    console.log("Input: ", calcInput)
+    console.log("Input: ", calcInput);
     log("Input: " + calcInput.join(" "));
     clearLogHistory();
 }
@@ -381,7 +381,6 @@ function handleOrderOfOperationSwitch(){
         $("#orderOfOperationSwitch").css("background-color", "#cd0a0a");
         console.log("Order of Operation OFF");
         log("Order of Operation OFF");
-
     }
     else{
         orderOfOperationMode = true;
@@ -391,6 +390,36 @@ function handleOrderOfOperationSwitch(){
     }
     lastButtonPressedWasEqual = false;      //should this switch?
     pressedCEafterEqual = false;
+}
+function handleEqual(){
+    logSolve = true;
+    if(lastButtonPressedWasCE){
+        pressedCEafterEqual = true;
+        if(lastButtonPressedWasOperator()){
+            calcInput.push(0)
+        }
+    }
+    else{
+        pressedCEafterEqual = false;
+    }
+    if(calcInput.length > 1) {
+        if (lastButtonPressedWasEqual) {
+            operationRepeat();
+        }
+        if (lastButtonPressedWasOperator() === true && numInputInitiated === false) {
+            if(calcInput.length === 2){
+                partialOperand();
+            }
+            else{
+                operationRollover();
+            }
+        }
+        calculateEquation();
+    }
+    logSolve = false;
+    lastButtonPressedWasEqual = true;
+    lastButtonPressedWasCE = false;
+    numInputInitiated = false;
 }
 function calculatePair(operatorIndex, inputArray){
     var firstNumber = inputArray[operatorIndex - 1];
@@ -414,34 +443,35 @@ function calculatePair(operatorIndex, inputArray){
             }
             break;
     }
-    //round total to nearest 100th  //OR USER INPUT  - TODO
+    //round total to nearest 100th OR User input decimal value
     if(total !== "ERROR") {
         var userInputRounding = "100";
-        // var userDecimalValue = 0;
-        // for(var i = 0; i<calcInput.length; i++){
-        //     if(calcInput[i].indexOf(".")!== -1){
-        //         var decimalValue = 0;
-        //         var decimalFound = false;
-        //         for(var j = 0; j < calcInput[i].length; j++){
-        //             if(decimalFound){
-        //                 decimalValue +=1;
-        //             }
-        //             if(calcInput[i][j] === "."){
-        //                 decimalFound = true;
-        //             }
-        //         }
-        //         if(userInputRounding < decimalValue){
-        //             userInputRounding = decimalValue
-        //         }
-        //     }
-        //
-        // }
-        // if(userDecimalValue > 2){
-        //     userDecimalValue = userDecimalValue - 2;
-        //     for(var i = 0; i < userDecimalValue; i++){
-        //         userInputRounding += "0";
-        //     }
-        // }
+        var userDecimalValue = 0;
+        for (var i = 0; i < calcInput.length; i++) {
+            var stringToCheck = calcInput[i].toString();
+            if (stringToCheck.indexOf(".") !== -1) {
+                var decimalValue = 0;
+                var decimalFound = false;
+                for (var j = 0; j < calcInput[i].length; j++) {
+                    if (decimalFound) {
+                        decimalValue += 1;
+                    }
+                    if (calcInput[i][j] === ".") {
+                        decimalFound = true;
+                    }
+                }
+                if (userDecimalValue < decimalValue) {
+                    userDecimalValue = decimalValue
+                }
+            }
+        }
+        if (userDecimalValue > 2) {
+            userDecimalValue = userDecimalValue - 2;
+            for (var i = 0; i < userDecimalValue; i++) {
+                userInputRounding += "0";
+            }
+        }
+
         total = Math.round((userInputRounding * total)) / userInputRounding
     }
     //remove numbers and operator - replace with total
@@ -449,11 +479,6 @@ function calculatePair(operatorIndex, inputArray){
     display(total);
 }
 function calculateEquation(){
-    // if(numInputInitiated && lastButtonPressedWasEqual){
-    //     while(calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "+" || calcInput[calcInput.length-1] === "-" || calcInput[calcInput.length-1] === "x" || calcInput[calcInput.length-1] === "÷" ){
-    //         calcInput.pop()
-    //     }
-    // }    //Attempt to fix infinite loop on (((((((-  <--- where last input it negative number.  TODO
     if(calcInput.length > 2) {
         var equationToSolve = [];
         for (var i = 0; i < calcInput.length; i++) {    //make clone of calcInput to preserve it
@@ -577,46 +602,6 @@ function solveEquationWithSuccessiveOperation(equationToSolve){
     }
     return equationToSolve;
 }
-function handleEqual(){
-    logSolve = true;
-    // while(calcInput[calcInput.length-1] === "(") {
-    //     calcInput.pop();
-    // }
-    // if (calcInput[calcInput.length-1] === "-"){
-    //     var indexToLookBack = 2;
-    //     while(calcInput.length - indexToLookBack === "("){
-    //         indexToLookBack +=1
-    //     }
-    //     if(calcInput[calcInput.length-indexToLookBack] === "+" || (calcInput[calcInput.length-indexToLookBack] === "-") || (calcInput[calcInput.length-indexToLookBack] === "x") || (calcInput[calcInput.length-indexToLookBack] === "÷")){    //if two operators in a row (second is -), then it's a negative symbol.  Remove it.{
-    //         calcInput.pop();
-    //     }
-    // }
-    log("Input: " + calcInput.join(" "))
-    if(calcInput.length > 1) {
-        if (lastButtonPressedWasEqual) {
-            operationRepeat();
-        }
-        if(lastButtonPressedWasCE){
-            if(lastButtonPressedWasOperator()){
-                calcInput.push(0)
-            }
-        }
-        if (lastButtonPressedWasOperator() === true && numInputInitiated === false) {
-            if(calcInput.length === 2){
-                partialOperand();
-            }
-            else{
-                operationRollover();
-            }
-        }
-        calculateEquation();
-    }
-    logSolve = false;
-    lastButtonPressedWasEqual = true;
-    lastButtonPressedWasCE = false;
-    pressedCEafterEqual = false;
-    numInputInitiated = false;
-}
 function partialOperand(){
     calcInput[2] = calcInput[0];
 }
@@ -647,7 +632,7 @@ function log(message){
     if(calcHistory.length > 25){
         calcHistory.pop();
     }
-    for(var i = 0; i < calcHistory.length-1; i++){
+    for(var i = 0; i < calcHistory.length; i++){
         var logLI = "#log_" + (i);
         $(logLI).text(calcHistory[i]).css("list-style-type", "square")
     }
