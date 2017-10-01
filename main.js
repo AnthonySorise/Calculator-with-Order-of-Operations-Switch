@@ -193,13 +193,23 @@ function lastButtonPressedWasOperator(){
     return (calcInput[calcInput.length - 1] === "+" || calcInput[calcInput.length - 1] === "-" || calcInput[calcInput.length - 1] === "x" || calcInput[calcInput.length - 1] === "÷")
 }
 function handleNumber() {
+    var input = $(this).find("p").text();
     if (lastButtonPressedWasEqual === true) {
         handleC();
     }
     if(pressedCEafterEqual){
         handleC();
     }
-    var input = $(this).find("p").text();
+    else if(parseInt(calcInput[calcInput.length-1]) === 0){
+        calcInput.pop();
+        calcInput.push(input);
+        numInputInitiated = true;
+        display(input);
+        console.log(input);
+        log("Input: " + calcInput.join(" "));
+        return
+    }
+
     if (calcInput.length > 0){
         if(input === "."){
             if(calcInput[calcInput.length-1].indexOf(".") !== -1){
@@ -220,7 +230,7 @@ function handleNumber() {
     else{
         if(calcInput[calcInput.length-1] === "0"){
             calcInput.pop();
-            calcInput.push(input)
+
         }
         else {
             calcInput[calcInput.length - 1] += input;
@@ -337,43 +347,46 @@ function handleC(){
     clearLogHistory();
 }
 function handleCE() {
-    if(!lastButtonPressedWasCE) {
-        if(lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")"){
-            while (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
-                if (lastButtonPressedWasOperator() || calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")") {
-                    calcInput.pop();
-                    console.log("Input: ", calcInput);
-                    log("Input: " + calcInput.join(" "));
-                    lastButtonPressedWasEqual = false;
-                    lastButtonPressedWasCE = true;
-                    numInputInitiated = false;
-                }
-            }
-        }
-        else{
-            if (lastButtonPressedWasEqual) {
-                pressedCEafterEqual = true;
-                var lastOperator = calcInput[calcInput.length - 2];
-                var lastNumber = calcInput[calcInput.length - 1];
-                handleC();
-                calcInput[0] = 0;
-                calcInput[1] = lastOperator;
-                calcInput[2] = lastNumber;
-                console.log("Input: ", calcInput);
-                log("Input: " + calcInput.join(" "));
-                lastButtonPressedWasEqual = false;
-                lastButtonPressedWasCE = true;
-                return
-            }
-            calcInput.pop();
-            display(0);
+    if(lastButtonPressedWasCE || calcInput[calcInput.length-1] === 0) {
+        lastButtonPressedWasEqual = false;
+        lastButtonPressedWasCE = true;
+        numInputInitiated = false;
+        return
+    }
+
+    if(lastButtonPressedWasOperator()){
+        calcInput.push(0);
+        display(0);
+        console.log("Input: ", calcInput);
+        log("Input: " + calcInput.join(" "));
+    }
+    else if(calcInput[calcInput.length - 1] === "(" || calcInput[calcInput.length - 1] === ")"){
+        calcInput.pop();
+    }
+    else{
+        if (lastButtonPressedWasEqual) {
+            pressedCEafterEqual = true;
+            var lastOperator = calcInput[calcInput.length - 2];
+            var lastNumber = calcInput[calcInput.length - 1];
+            handleC();
+            calcInput[0] = 0;
+            calcInput[1] = lastOperator;
+            calcInput[2] = lastNumber;
             console.log("Input: ", calcInput);
             log("Input: " + calcInput.join(" "));
             lastButtonPressedWasEqual = false;
             lastButtonPressedWasCE = true;
-            numInputInitiated = false;
+            return
         }
+        calcInput.pop();
+        display(0);
+        console.log("Input: ", calcInput);
+        log("Input: " + calcInput.join(" "));
+        lastButtonPressedWasEqual = false;
+        lastButtonPressedWasCE = true;
+        numInputInitiated = false;
     }
+
 }
 function handleOrderOfOperationSwitch(){
     if(orderOfOperationMode === true){
